@@ -1,4 +1,6 @@
 /* Converted JS to TS to see difference. TypeScript can tell us preemptively of potential errors in code
+
+
 const menu = [
     { name: "Meat Lovers", price: 15},
     { name: "Margherita", price: 10},
