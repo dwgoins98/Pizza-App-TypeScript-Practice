@@ -69,22 +69,25 @@ console.log("Pizza Orders: \n" + pizzaStatusInQueue.join(":\t") + "\n" + pizzaNa
 
 */
 
-import { error } from "console"
-
 /*** Learning TypeScript */
 
 const myName = "Daniel"
 let numOfWheels: number = 4
 let isStudent: boolean = false
+let newOrderID: number = 1
 
 /* TypeScript can inherently assign data type by what data is given */
 
 /*** TypeScript Pizza App */
+
+
 type MenuItem = {
     pizzaID: number
     name: string
     price: number
 }
+
+type UpdatedMenuItem = Partial<MenuItem>
 
 type Order = {
     id: number
@@ -92,25 +95,32 @@ type Order = {
     status: "Ordered" | "Completed"          // litteral union type
 }
 
+let nextPizzaID: number = 1000 
+
 let menu: MenuItem[] = [
-    {pizzaID: 1000, name: "Cheese", price: 10},
-    {pizzaID: 1001, name: "Pepperoni", price: 12},
-    {pizzaID: 1002, name: "Veggie", price: 11},
-    {pizzaID: 1003, name: "Meat Lovers", price: 15},
-    {pizzaID: 1004, name: "Hawaiian", price: 13}
+    {pizzaID: nextPizzaID++, name: "Cheese", price: 10},
+    {pizzaID: nextPizzaID++, name: "Pepperoni", price: 12},
+    {pizzaID: nextPizzaID++, name: "Veggie", price: 11},
+    {pizzaID: nextPizzaID++, name: "Meat Lovers", price: 15},
+    {pizzaID: nextPizzaID++, name: "Hawaiian", price: 13}
 ]  // end menu
 
 
 let cashInRegister: number = 100
 const orderQueue:Order[] = []
-let newOrderID: number = 1
 
-function addNewPizza(pizzaObj: MenuItem): void {
+function addNewPizza(pizzaObj: Omit<MenuItem, "pizzaID">): MenuItem | unknown {     // Omit pizzaID because this isn't something the user should have to iclude when adding a pizza
+
+    const newPizza: MenuItem = {
+        pizzaID: nextPizzaID++,
+        ...pizzaObj
+    }
     if(!pizzaObj){
         console.error(`Cannot add pizza: ${pizzaObj}`)
         return
     }
-    menu.push(pizzaObj)
+    menu.push(newPizza)
+    return newPizza
     
 } // end function addNewPizza()
 
@@ -179,9 +189,10 @@ export function getPizzaDetail(identifier: string | number): MenuItem | unknown 
     console.error("Cannot place order")
 } // end try catch
 
+// Keep track of pizzaIDs, increment them by 1 with ever new Pizza addition
 
 try {
-    addNewPizza({pizzaID: 1005, name: "BBQ", price: 14})
+    addNewPizza({name: "BBQ", price: 14})
  } catch (error) {
     console.error("Cannot add new pizza")
  } // end try catch
@@ -205,16 +216,46 @@ try {
 
 
 
-//Checking that the orders were placed
+// Checking that the orders were placed
 // Extract pizza names from orderQueue
 
 
 
 let pizzaNamesInQueue = orderQueue.map( order => order.item)
-console.log("Pizza Orders: \n\t", pizzaNamesInQueue.join("\n\t") + "\n")
-console.log("Cash in Register: " + cashInRegister)
+// console.log("Pizza Orders: \n\t", pizzaNamesInQueue.join("\n\t") + "\n")
+// console.log("Cash in Register: " + cashInRegister)
 /*
 let pizzaNamesInQueue = orderQueue.map( order => order.name)
 let pizzaStatusInQueue = orderQueue.map( order => order.status)
 console.log("Pizza Orders: \n" + pizzaStatusInQueue.join(":\t") + "\n" + pizzaNamesInQueue.join("\t") + "\n")
 */
+
+console.log("Menu: ", menu)
+
+
+
+
+/** Generics */
+
+function addToArray<Type> (array: Type[], item: Type): Type[] {
+    array.push(item)
+    return array
+}
+
+addToArray<MenuItem>(menu, {pizzaID: nextPizzaID++, name: "Ultimate", price: 12})
+addToArray<Order>(orderQueue, {id: newOrderID++, item: menu[2], status: "Ordered"}) // added the type Order in <> to allow for union types
+
+console.log(menu)
+console.log(orderQueue)
+
+/**
+ * 
+ * What I learned about TypeScript through this app
+ * 1. Basic, literal, and custom Types
+ * 2. Optional Properties (properties in a Type that is followed with a ?)
+ * 3. Unions (combining multiple different Types into different Types)
+ * 4. Type Narrowing (Narrowing down which of the Union types we are using)
+ * 5. Utility Types(properties in a type that are limited to options seperated by a |)
+ * 6. Generics (adding additional flexibility inside the code using <>)
+ * 
+ */
